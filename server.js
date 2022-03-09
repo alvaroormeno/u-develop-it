@@ -32,6 +32,19 @@ app.get('/', (req, res) => {
 });
 
 
+
+
+
+
+
+
+
+// Query database to test connection - returns all the data in the CANDIDATES TABLE
+db.query(`SELECT * FROM candidates`, (err, rows) => {
+    console.log(rows);
+});
+
+
 // Default response for any other request (Not Found)
 // Because this is a catchall route, its placement is very important.
 // This route will override all others—so make sure that this is the last one.
