@@ -36,8 +36,8 @@ app.get('/', (req, res) => {
 
 
 
-
-
+////////////////////////////// API ROUTES FOR CANDIDATES //////////////////////////////
+////////////////////////////// API ROUTES FOR CANDIDATES //////////////////////////////
 
 
 // QUERY(REQUEST) TO DELETE a single candidate WRAPPED IN AN EXPRESS.JS ROUTE
@@ -67,7 +67,6 @@ app.delete('/api/candidate/:id', (req, res) => {
   });
 
 
-
 // QUERY TO READ/GET a single candidate WRAPPED IN AN EXPRESS.JS ROUTE
 // - When client hits endpoint /api/candidate/1 in browser URL, route callback arrow function will handle clients db.query request and database response.
 app.get('/api/candidate/:id', (req, res) => {
@@ -90,8 +89,6 @@ app.get('/api/candidate/:id', (req, res) => {
         });
     });
 });
-
-
 
 // QUERY TO READ WRAPPED IN AN EXPRESS.JS ROUTE (db.query request wrapped in app.get express route)
 // - Route is designated to /api/candidates endpoint, when client hits endpoint in browser URL,
@@ -148,6 +145,92 @@ app.post('/api/candidate', ({ body }, res) => {
         message: 'success',
         data: body
     });
+    });
+});
+
+// PUT API Route to Update a candidate's party
+app.put('/api/candidate/:id', (req, res) => {
+
+    const errors = inputCheck(req.body, 'party_id');
+    if (errors) {
+    res.status(400).json({ error: errors });
+    return;
+    }
+    // If no error is found by function (inputCheck), then this happens...
+    const sql = `UPDATE candidates SET party_id = ? 
+                 WHERE id = ?`;
+    const params = [req.body.party_id, req.params.id];
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        res.status(400).json({ error: err.message });
+        // check if a record was found
+      } else if (!result.affectedRows) {
+        res.json({
+          message: 'Candidate not found'
+        });
+      } else {
+        res.json({
+          message: 'success',
+          data: req.body,
+          changes: result.affectedRows
+        });
+      }
+    });
+});
+
+
+////////////////////////////// API ROUTES FOR PARTIES //////////////////////////////
+////////////////////////////// API ROUTES FOR PARTIES //////////////////////////////
+
+app.get('/api/parties', (req, res) => {
+    const sql = `SELECT * FROM parties`;
+    db.query(sql, (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: 'success',
+        data: rows
+      });
+    });
+});
+
+// This route api has an ID paramter to read a single party
+app.get('/api/party/:id', (req, res) => {
+    const sql = `SELECT * FROM parties WHERE id = ?`;
+    const params = [req.params.id];
+    db.query(sql, params, (err, row) => {
+      if (err) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: 'success',
+        data: row
+      });
+    });
+});
+
+// Query that DELETES parties based on their ID
+app.delete('/api/party/:id', (req, res) => {
+    const sql = `DELETE FROM parties WHERE id = ?`;
+    const params = [req.params.id];
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        res.status(400).json({ error: res.message });
+        // checks if anything was deleted
+      } else if (!result.affectedRows) {
+        res.json({
+          message: 'Party not found'
+        });
+      } else {
+        res.json({
+          message: 'deleted',
+          changes: result.affectedRows,
+          id: req.params.id
+        });
+      }
     });
 });
 
