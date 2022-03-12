@@ -27,6 +27,7 @@ const db = mysql.createConnection(
 
 
 // APP ROUTE that when client hits (/) the response is ...
+// just to checl api route is working! NO USE AT ALL....
 app.get('/', (req, res) => {
     res.json({
       message: 'Hello World'
@@ -35,18 +36,7 @@ app.get('/', (req, res) => {
 
 
 
-// QUERY(REQUEST) TO CREATE - GET AND DELETE a single candidateCreate a candidate
-// -  This db.query statement SQL Command and SQL Paramater are assigned to two variables: (SQL & PARAMS) 
-// const sql = `INSERT INTO candidates (id, first_name, last_name, industry_connected) 
-//               VALUES (?,?,?,?)`;
-// const params = [1, 'Ronald', 'Firbank', 1];
 
-// db.query(sql, params, (err, result) => {
-//   if (err) {
-//     console.log(err);
-//   }
-//   console.log(result);
-// });
 
 
 
@@ -108,9 +98,13 @@ app.get('/api/candidate/:id', (req, res) => {
 //   the route callback arrow function will handle clients db.query request and database response.
 app.get('/api/candidates', (req, res) => {
 
-    // - This db.query statement SQL Command is assigned to SQLCOMM Variable
-    const sqlComm = "SELECT * FROM candidates";
-    db.query(sqlComm, (err, rows) => {
+    // - This db.query statement SQL Command is assigned to SQL Variable
+    const sql = `SELECT candidates.*, parties.name 
+                AS party_name 
+                FROM candidates 
+                LEFT JOIN parties 
+                ON candidates.party_id = parties.id`;
+    db.query(sql, (err, rows) => {
         // db.query callback arrow function with two params (err and rows(response)) checks IF err is true,
         // will return the app.get res with status of 500
         if (err) {
@@ -137,8 +131,12 @@ app.post('/api/candidate', ({ body }, res) => {
       return;
     }
     // If no error is found by function (inputCheck), then this happens...
-    const sql = `INSERT INTO candidates (first_name, last_name, industry_connected)
-    VALUES (?,?,?)`;
+    const sql = `SELECT candidates.*, parties.name 
+                AS party_name 
+                FROM candidates 
+                LEFT JOIN parties 
+                ON candidates.party_id = parties.id 
+                WHERE candidates.id = ?`;
     const params = [body.first_name, body.last_name, body.industry_connected];
 
     db.query(sql, params, (err, result) => {
@@ -219,5 +217,21 @@ app.listen(PORT, () => {
             // db.query(`SELECT * FROM candidates`, (err, rows) => {
             //     console.log(rows);
             // });
+
+//////////////////////////////////
+
+// QUERY(REQUEST) TO CREATE - GET AND DELETE a single candidateCreate a candidate
+// -  This db.query statement SQL Command and SQL Paramater are assigned to two variables: (SQL & PARAMS) 
+
+        // const sql = `INSERT INTO candidates (id, first_name, last_name, industry_connected) 
+        //               VALUES (?,?,?,?)`;
+        // const params = [1, 'Ronald', 'Firbank', 1];
+
+        // db.query(sql, params, (err, result) => {
+        //   if (err) {
+        //     console.log(err);
+        //   }
+        //   console.log(result);
+        // });
 
 //////////////////////////////////
